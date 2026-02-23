@@ -151,21 +151,42 @@ For implementation details and behavior design, see:
 ## Project Structure
 
 ```text
-backend/
-  server.js
-  routes/
-  controllers/
-  utils/
-
-frontend/
-  src/
-    App.jsx
-    components/
-    services/
-    App.css
-  index.html
-
-docker-compose.yml
-README.md
-FEATURE_EXPLANATION.md
+cosigma_technical_test/
+├── backend/
+│   ├── server.js
+│   ├── constants.js
+│   ├── routes/
+│   │   └── searchRoutes.js
+│   ├── controllers/
+│   │   └── searchController.js
+│   ├── utils/
+│   │   ├── pdfParser.js
+│   │   └── textSearch.js
+│   ├── middlewares/
+│   ├── models/
+│   ├── db/
+│   ├── .env.example
+│   └── Dockerfile
+│
+├── frontend/
+│   ├── src/
+│   │   ├── main.jsx
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   ├── index.css
+│   │   ├── components/
+│   │   │   ├── PDFViewer.jsx
+│   │   │   ├── PDFPage.jsx
+│   │   │   ├── SidePanel.jsx
+│   │   │   └── SearchResults.jsx
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   └── textSearch.js
+│   │   └── assets/
+│   ├── public/
+│   └── Dockerfile
+│
+├── docker-compose.yml
+├── README.md
+└── FEATURE_EXPLANATION.md
 ```
