@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF.js Debug — Raw Render Test</title>
+  <style>
+    body { background: #222; color: #eee; font-family: monospace; padding: 20px; }
+    canvas { border: 2px solid #0f0; display: block; margin: 12px auto; }
+    #log  { background: #111; padding: 12px; border-radius: 6px; height: 200px; overflow-y: auto; font-size: 12px; }
+    .ok   { color: #4f4; }
+    .err  { color: #f44; }
+    .info { color: #48f; }
+    button { padding: 8px 20px; font-size: 14px; background: #4a4af4; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>PDF.js Debug — Pure Render (no React)</h2>
+  <input type="file" id="file-input" accept="application/pdf" />
+  <button onclick="loadPdf()">Upload &amp; Test</button>
+  <div id="log"></div>
+  <div id="pages"></div>
+
+  <script type="module">
+    import * as pdfjsLib from '/node_modules/pdfjs-dist/build/pdf.mjs';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/node_modules/pdfjs-dist/build/pdf.worker.mjs';
+    window.pdfjsLib = pdfjsLib;
+    log('✅ pdfjs-dist loaded v' + pdfjsLib.version, 'ok');
+    log('TextLayer: ' + typeof pdfjsLib.TextLayer, pdfjsLib.TextLayer ? 'ok' : 'err');
+
+    window.loadPdf = async function() {
+      const file = document.getElementById('file-input').files[0];
+      if (!file) { log('No file selected', 'err'); return; }
+      log('📂 Loading: ' + file.name + ' (' + file.size + ' bytes)', 'info');
+
+      try {
+        const data = await file.arrayBuffer();
+        log('✅ ArrayBuffer ready', 'ok');
+
+        const doc = await pdfjsLib.getDocument({ data }).promise;
+        log('✅ PDF loaded: ' + doc.numPages + ' pages', 'ok');
+
+        const pagesEl = document.getElementById('pages');
+        pagesEl.innerHTML = '';
+
+        for (let p = 1; p <= doc.numPages; p++) {
+          log(`🖼 Rendering page ${p}...`, 'info');
+          const page     = await doc.getPage(p);
+          const viewport = page.getViewport({ scale: 1.5 });
+
+          // Canvas
+          const canvas  = document.createElement('canvas');
+          const dpr     = window.devicePixelRatio || 1;
+          canvas.style.width  = viewport.width + 'px';
+          canvas.style.height = viewport.height + 'px';
+          canvas.width  = Math.floor(viewport.width  * dpr);
+          canvas.height = Math.floor(viewport.height * dpr);
+          const ctx     = canvas.getContext('2d');
+          ctx.scale(dpr, dpr);
+
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          log(`✅ Page ${p} canvas rendered`, 'ok');
+          pagesEl.appendChild(canvas);
+
+          // Text layer
+          if (pdfjsLib.TextLayer) {
+            const textDiv = document.createElement('div');
+            textDiv.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;background:rgba(0,255,0,0.05)';
+            try {
+              const tl = new pdfjsLib.TextLayer({
+                textContentSource: page.streamTextContent(),
+                container: textDiv,
+                viewport,
+              });
+              await tl.render();
+              log(`✅ Page ${p} TextLayer rendered (${textDiv.children.length} spans)`, 'ok');
+            } catch (e) {
+              log(`⚠ TextLayer error: ${e.message}`, 'err');
+            }
+          }
+        }
+
+        log('🎉 All pages done!', 'ok');
+      } catch (err) {
+        log('❌ Error: ' + err.message + '\n' + err.stack, 'err');
+      }
+    };
+
+    function log(msg, cls = 'info') {
+      const div = document.getElementById('log');
+      const line = document.createElement('div');
+      line.className = cls;
+      line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+      div.appendChild(line);
+      div.scrollTop = div.scrollHeight;
+      console.log(msg);
+    }
+    window.log = log;
+  </script>
+</body>
+</html>
