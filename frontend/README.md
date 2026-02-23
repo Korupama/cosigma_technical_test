@@ -1,4 +1,4 @@
-# Frontend - PDF Highlight & Find Related
+# Frontend - PDF Reader
 
 React + Vite frontend for viewing PDFs, creating text highlights, finding related passages, and jumping to matched locations.
 
