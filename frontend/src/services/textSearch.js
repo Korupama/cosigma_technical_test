@@ -38,20 +38,29 @@ async function extractPages(pdfFile) {
   return pages;
 }
 
-export async function searchTextInPdf(pdfFile, query, maxResults = 30) {
+export async function buildPdfTextIndex(pdfFile) {
+  if (!pdfFile) return [];
+
+  const pages = await extractPages(pdfFile);
+  return pages.map((page) => ({
+    ...page,
+    textLower: page.text.toLowerCase(),
+  }));
+}
+
+export function searchInPdfTextIndex(textIndex, query, maxResults = 30) {
   const normalizedQuery = normalizeText(query).toLowerCase();
-  if (!pdfFile || !normalizedQuery) {
+  if (!Array.isArray(textIndex) || textIndex.length === 0 || !normalizedQuery) {
     return [];
   }
 
-  const pages = await extractPages(pdfFile);
   const results = [];
 
-  for (const page of pages) {
-    if (!page.text) continue;
+  for (const page of textIndex) {
+    if (!page.text || !page.textLower) continue;
 
     const source = page.text;
-    const lower = source.toLowerCase();
+    const lower = page.textLower;
     let fromIndex = 0;
 
     while (fromIndex < lower.length) {
@@ -76,4 +85,9 @@ export async function searchTextInPdf(pdfFile, query, maxResults = 30) {
   }
 
   return results;
+}
+
+export async function searchTextInPdf(pdfFile, query, maxResults = 30) {
+  const textIndex = await buildPdfTextIndex(pdfFile);
+  return searchInPdfTextIndex(textIndex, query, maxResults);
 }

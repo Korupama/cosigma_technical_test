@@ -94,6 +94,20 @@
   font-size: 1rem;
 }
 
+.icon-inline {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.file-icon,
+.upload-icon,
+.title-icon,
+.jump-icon {
+  width: 1em;
+  height: 1em;
+}
+
 /* ============================================
    MAIN CONTENT
    ============================================ */
@@ -110,12 +124,104 @@
 }
 
 .panel-container {
+  position: relative;
   width: 380px;
   flex-shrink: 0;
   border-left: 1px solid var(--border-color);
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
+  transition: width var(--transition-normal);
+}
+
+.panel-container.collapsed {
+  width: 56px;
+}
+
+.panel-content {
+  position: relative;
+  height: 100%;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.panel-container.collapsed .panel-content {
+  position: absolute;
+  top: 0;
+  right: 56px;
+  width: 380px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(8px);
+  z-index: 90;
+  box-shadow: var(--shadow-lg);
+}
+
+.panel-container.collapsed.peek-active .panel-content {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.toolbar-toggle-btn {
+  position: absolute;
+  top: 14px;
+  left: -14px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-light);
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 120;
+}
+
+.toolbar-toggle-btn .icon-inline {
+  width: 11px;
+  height: 11px;
+}
+
+.panel-peek {
+  display: none;
+  height: 100%;
+  width: 100%;
+}
+
+.panel-container.collapsed .panel-peek {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.panel-peek-btn {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  user-select: none;
+  cursor: pointer;
+  opacity: 0.82;
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+
+.panel-peek-btn:disabled {
+  cursor: default;
+}
+
+.panel-container.collapsed.peek-active .panel-peek-btn {
+  opacity: 1;
+  transform: translateX(-2px);
 }
 
 /* ============================================
@@ -304,6 +410,71 @@
   padding: 20px;
 }
 
+.panel-header-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  margin: 0 0 16px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.panel-header-btn .panel-title {
+  margin-bottom: 0;
+}
+
+.section-chevron {
+  width: 0.8rem;
+  height: 0.8rem;
+  color: var(--text-muted);
+}
+
+.selection-actions-section {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.selection-preview {
+  min-height: 58px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  overflow: hidden;
+}
+
+.selection-actions-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.selection-action-btn {
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.selection-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .text-search-section {
   border-bottom: 1px solid var(--border-color);
 }
@@ -346,6 +517,12 @@
 .text-search-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.text-search-status {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 .highlights-section {
@@ -462,6 +639,11 @@
   background: rgba(239, 68, 68, 0.1);
 }
 
+.remove-btn .icon-inline {
+  width: 10px;
+  height: 10px;
+}
+
 .highlight-text {
   font-size: 0.85rem;
   color: var(--text-secondary);
@@ -547,6 +729,11 @@
 .close-btn:hover {
   color: var(--text-primary);
   border-color: var(--text-secondary);
+}
+
+.close-btn .icon-inline {
+  width: 10px;
+  height: 10px;
 }
 
 /* Loading */

@@ -7,6 +7,7 @@
  * never attached, keeping containerWidth = 0 even after a PDF was loaded.
  */
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { FaFilePdf } from 'react-icons/fa';
 import * as pdfjsLib from 'pdfjs-dist';
 import PDFPage from './PDFPage';
 
@@ -17,7 +18,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 // ── Component ─────────────────────────────────────────────────────────────────
-function PDFViewer({ pdfFile, highlights, onAddHighlight, jumpTarget, onJumpComplete }) {
+function PDFViewer({ pdfFile, highlights, onSelectionChange, jumpTarget, onJumpComplete }) {
     const containerRef = useRef(null);
     const pageRefs = useRef({});
     const jumpTimeoutRef = useRef(null);
@@ -72,11 +73,14 @@ function PDFViewer({ pdfFile, highlights, onAddHighlight, jumpTarget, onJumpComp
         };
     }, [pdfFile]);
 
-    // ── Text selection → highlight ─────────────────────────────────────────
+    // ── Text selection info for on-demand actions ─────────────────────────
     const handleMouseUp = useCallback(() => {
         const sel = window.getSelection();
         const text = sel?.toString().trim();
-        if (!text || text.length < 3) return;
+        if (!text || text.length < 3) {
+            onSelectionChange?.(null);
+            return;
+        }
 
         let pageEl = sel.anchorNode?.parentElement;
         while (pageEl && !pageEl.dataset.pageNumber) pageEl = pageEl.parentElement;
@@ -103,14 +107,12 @@ function PDFViewer({ pdfFile, highlights, onAddHighlight, jumpTarget, onJumpComp
             heightRatio: pageRect.height ? rect.height / pageRect.height : 0,
         }));
 
-        onAddHighlight({
-            id: Date.now().toString(),
+        onSelectionChange?.({
             text,
             pageNumber,
             rects: relativeRects,
         });
-        sel.removeAllRanges();
-    }, [onAddHighlight]);
+    }, [onSelectionChange]);
 
     // ── Jump to page ───────────────────────────────────────────────────────
     useEffect(() => {
@@ -157,7 +159,9 @@ function PDFViewer({ pdfFile, highlights, onAddHighlight, jumpTarget, onJumpComp
             {/* Empty state — shown when no PDF is uploaded */}
             {!pdfFile && (
                 <div className="pdf-viewer-empty">
-                    <div className="empty-icon">PDF</div>
+                    <div className="empty-icon">
+                        <FaFilePdf className="icon-inline" aria-hidden="true" />
+                    </div>
                     <h2>No PDF Loaded</h2>
                     <p>Upload a PDF file to get started</p>
                 </div>

@@ -1,3 +1,5 @@
+import { FaExclamationTriangle, FaExternalLinkAlt, FaSearch, FaTimes } from 'react-icons/fa';
+
 function SearchResults({
     results,
     isLoading,
@@ -12,10 +14,14 @@ function SearchResults({
             <div className="search-results">
                 <div className="search-results-header">
                     <h3>{title}</h3>
-                    <button className="close-btn" onClick={onClose}>Close</button>
+                    <button className="close-btn" onClick={onClose} aria-label="Close results">
+                        <FaTimes className="icon-inline" aria-hidden="true" />
+                    </button>
                 </div>
                 <div className="search-error">
-                    <div className="error-icon">Error</div>
+                    <div className="error-icon">
+                        <FaExclamationTriangle className="icon-inline" aria-hidden="true" />
+                    </div>
                     <p>{error}</p>
                 </div>
             </div>
@@ -41,10 +47,14 @@ function SearchResults({
             <div className="search-results">
                 <div className="search-results-header">
                     <h3>{title}</h3>
-                    <button className="close-btn" onClick={onClose}>Close</button>
+                    <button className="close-btn" onClick={onClose} aria-label="Close results">
+                        <FaTimes className="icon-inline" aria-hidden="true" />
+                    </button>
                 </div>
                 <div className="search-empty">
-                    <div className="empty-icon">No Match</div>
+                    <div className="empty-icon">
+                        <FaSearch className="icon-inline" aria-hidden="true" />
+                    </div>
                     <p>{emptyMessage}</p>
                     <span className="empty-hint">Try selecting a different passage</span>
                 </div>
@@ -56,7 +66,9 @@ function SearchResults({
         <div className="search-results">
             <div className="search-results-header">
                 <h3>{title} ({results.length})</h3>
-                <button className="close-btn" onClick={onClose}>Close</button>
+                <button className="close-btn" onClick={onClose} aria-label="Close results">
+                    <FaTimes className="icon-inline" aria-hidden="true" />
+                </button>
             </div>
             <div className="search-results-list">
                 {results.map((result, index) => {
@@ -86,7 +98,7 @@ function SearchResults({
                             className="jump-btn"
                             onClick={() => onJump(result)}
                         >
-                            <span className="jump-icon">Go</span> Jump to page
+                            <FaExternalLinkAlt className="icon-inline jump-icon" aria-hidden="true" /> Jump to page
                         </button>
                     </div>
                 )})}
